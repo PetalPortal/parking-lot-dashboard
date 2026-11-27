@@ -1,0 +1,13 @@
+# Your data never belongs in the repo
+data/
+*.json
+!config.example.json
+!manifest*.json
+config.json
+*.tmp
+*.bak*
+__pycache__/
+*.pyc
+oura_adapter.py
+.env
+*.token

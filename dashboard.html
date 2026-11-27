@@ -1,0 +1,197 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard</title>
+<link rel="manifest" href="/dash-manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#2b2347">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dashboard">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{--shimmer:1}
+body{margin:0;background:linear-gradient(160deg,#1b2a3a,#2b2347 60%,#1f3a3a);font-family:Georgia,serif;color:#eef;padding:20px;min-height:100vh}
+body.calm{--shimmer:0}
+h1{font-weight:normal;font-size:22px;margin:0}.sub{opacity:.7;font-size:14px;margin:2px 0 16px}
+.wrap{max-width:720px;margin:auto}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:18px;margin-bottom:16px}
+.card h2{font-size:14px;margin:0 0 12px;letter-spacing:.08em;text-transform:uppercase;color:#bfe8d8;font-weight:normal}
+input,textarea{width:100%;box-sizing:border-box;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#eef;padding:8px 10px;font:inherit}
+button{background:none;border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#eef;padding:4px 12px;margin:6px 6px 0 0;font:inherit;font-size:13px;cursor:pointer}
+button:hover{background:rgba(255,255,255,.1)}
+.star{font-size:34px;background:linear-gradient(120deg,#dfe3ee,#f6d98a 45%,#e9ecf5 70%,#f2cf7a);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 6px rgba(246,217,138,.35));animation:sh 9s ease-in-out infinite}
+body.calm .star{animation:none;filter:none}
+/* quiet version: flat, softer colors, no glow, no gradients. Nothing hidden, nothing moves. */
+body.calm{background:#1c2430}
+body.calm .wrap{filter:saturate(.5) brightness(.9)}
+body.calm .card{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.09)!important;box-shadow:none}
+body.calm .card h2{color:#a9c4bb!important}
+body.calm .star{background:none;color:#d9cfae;-webkit-text-fill-color:#d9cfae}
+body.calm .note{background:rgba(255,255,255,.05)}
+@keyframes sh{0%,100%{background-position:0 0}50%{background-position:100% 0}}
+.empty{font-size:34px;color:rgba(255,255,255,.2);cursor:default}
+.slot{display:inline-block;text-align:center;margin-right:12px}.slot small{display:block;font-size:11px;opacity:.65;max-width:90px}
+.note{background:rgba(191,232,216,.1);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:15px}
+.note small{opacity:.55}.trail{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-size:12px;margin-top:14px}
+.trail .star,.trail .empty{font-size:16px}.win{font-size:13px;opacity:.8;margin-top:4px}
+.calmbtn{position:absolute;right:20px;top:20px;font-size:12px}
+</style></head><body><button class="calmbtn" id="calm">☾ calm mode</button>
+<div class="wrap"><h1 id="hi">Hello</h1><div class="sub">What would help today?</div>
+
+<div class="card"><h2>Small Win ✦ Stars</h2>
+<div id="winbox"></div>
+<div id="slots" style="margin-top:10px"></div>
+<div id="extras"></div>
+<div class="trail" id="trail"></div></div>
+
+<div class="card" id="gtcard" style="background:linear-gradient(135deg,rgba(191,232,216,.16),rgba(249,168,212,.12));border-color:rgba(191,232,216,.35)">
+<h2>One gentle thing</h2>
+<div id="gttext" style="font-size:18px;line-height:1.35">…</div>
+<div id="gtbtns" style="margin-top:8px"></div>
+<details style="margin-top:12px;font-size:13px;opacity:.85"><summary style="cursor:pointer">my list</summary>
+<div id="gtlist" style="margin-top:8px"></div>
+<input id="gtadd" placeholder="add one of your own (a small thing)" style="margin-top:8px"></details></div>
+
+<div class="card" id="ouracard" hidden style="background:linear-gradient(135deg,rgba(249,168,212,.16),rgba(125,224,220,.14));border-color:rgba(249,168,212,.35)">
+<h2 style="color:#f9c8e4">Sleep &amp; Body</h2>
+<div id="ouranote" style="font-size:16px">Listening for Oura…</div>
+<div id="ourachips" style="margin-top:10px"></div>
+<div id="ouraspark"></div>
+<div style="margin-top:10px;font-size:12px;opacity:.7" id="ouraopts"></div></div>
+
+<div class="card" id="wxcard" hidden style="background:linear-gradient(135deg,rgba(125,200,255,.14),rgba(191,232,216,.12));border-color:rgba(125,200,255,.3)">
+<h2 style="color:#bfe3ff">Weather <span id="wxplace" style="opacity:.6;text-transform:none;letter-spacing:0"></span></h2>
+<div id="wxnote" style="font-size:16px">Looking outside…</div>
+<div id="wxdays" style="display:flex;gap:6px;margin-top:12px"></div></div>
+
+<div class="card" id="plcard" style="background:linear-gradient(135deg,rgba(255,220,150,.12),rgba(249,168,212,.10));border-color:rgba(255,220,150,.28)">
+<h2 style="color:#ffe3a8">Parking Lot</h2>
+<div style="display:flex;align-items:center;gap:14px">
+<div id="plcount" style="font-size:40px;line-height:1">–</div>
+<div><div id="pltext" style="font-size:16px">Checking the lot…</div>
+<div id="plnew" style="font-size:13px;opacity:.7;margin-top:2px"></div></div></div>
+<div style="margin-top:10px"><a href="/" style="color:#eef;font-size:13px;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:4px 12px;text-decoration:none;display:inline-block">open the lot</a></div></div>
+
+<div class="card"><h2 id="notestitle">Notes</h2><div id="notes"></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const api=(p,b)=>fetch(p,b?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}:{}).then(r=>r.json());
+if(localStorage.calm==='1')document.body.classList.add('calm');
+$('calm').onclick=()=>{document.body.classList.toggle('calm');localStorage.calm=document.body.classList.contains('calm')?'1':'0'};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function render(){
+ const d=await api('/api/dash');const t=d.today;
+ if(d.owner)$('hi').textContent='Hello, '+d.owner;$('notestitle').textContent=d.helper?d.helper+"'s Notes":'Notes';
+ const win=d.wins.find(w=>w.date===t);
+ const keep=document.getElementById('wintext');const pending=keep&&keep.dataset.dirty==='1'?keep.value:null;
+ $('winbox').innerHTML=`<input id="wintext" enterkeyhint="done" placeholder="Today's small win (anything counts, even getting through)" value="${win?esc(win.text):''}">
+  <button id="savewin">save</button> <span id="winok" style="font-size:13px;color:#aef0ec">${win?'✓ saved':''}</span>`;
+ const wt=$('wintext');if(pending!==null){wt.value=pending;wt.dataset.dirty='1';$('winok').textContent=''}
+ wt.oninput=()=>{wt.dataset.dirty='1';$('winok').textContent=''};
+ const saveWin=async()=>{if(wt.dataset.dirty!=='1')return;const r=await api('/api/dash/win',{text:wt.value});wt.dataset.dirty='0';
+  $('winok').textContent=r&&r.ok?(wt.value.trim()?'✓ saved':''):"couldn't save, try again"};
+ wt.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();wt.blur()}};
+ wt.onchange=saveWin;
+ $('savewin').onclick=async()=>{wt.dataset.dirty='1';await saveWin()};
+ const ts=d.today_stars;const day=ts.find(s=>s.kind==='day');const ex=ts.filter(s=>s.kind==='extra');
+ let h='';
+ h+=day?`<span class="slot"><span class="star">★</span><small>today</small></span>`
+  :`<span class="slot"><button id="placeday" style="font-size:28px;border:none" class="empty">☆</button><small>tap to place</small></span>`;
+ for(let i=0;i<2;i++)h+=ex[i]?`<span class="slot"><span class="star">★</span><small>${esc(ex[i].label)}</small></span>`
+  :`<span class="slot"><span class="empty">☆</span></span>`;
+ $('slots').innerHTML=h;
+ if(!day)$('placeday').onclick=async()=>{await api('/api/dash/star',{kind:'day'});render()};
+ $('extras').innerHTML=ex.length<2&&ts.length<3?d.extra_list.map(x=>`<button data-x="${esc(x)}">+ ${esc(x)}</button>`).join(''):'';
+ $('extras').querySelectorAll('button').forEach(b=>b.onclick=async()=>{await api('/api/dash/star',{kind:'extra',label:b.dataset.x});render()});
+ // 7-day trail
+ let tr='';for(let i=6;i>=0;i--){const dt=new Date();dt.setDate(dt.getDate()-i);const iso=dt.toLocaleDateString('en-CA');
+  const n=d.stars.filter(s=>s.date===iso).length;const w=d.wins.find(w=>w.date===iso);
+  tr+=`<div title="${w?esc(w.text):''}">${dt.toLocaleDateString('en-US',{weekday:'short'})}<br>${n?'<span class="star">'+'★'.repeat(n)+'</span>':'<span class="empty">☆</span>'}</div>`}
+ $('trail').innerHTML=tr;
+ // notes
+ const open=d.notes.filter(n=>n.status!=='answered').reverse();
+ $('notes').innerHTML=open.length?open.map(n=>`<div class="note" data-id="${n.id}">${n.offer?'✦ ':'🌿 '}${esc(n.text)}
+  <br><small>${n.status==='later'?'saved for later':''}</small>
+  ${n.offer?`<button data-a="place">place it</button><button data-a="no">no thank you</button>`
+   :`<input class="reply" placeholder="reply (optional)"><button data-a="answer">answer</button><button data-a="later">later</button><button data-a="tuck">tuck away</button>`}</div>`).join('')
+  :'<div class="note" style="opacity:.6">No notes right now. Quiet is fine.</div>';
+ $('notes').querySelectorAll('.note[data-id]').forEach(el=>{const id=el.dataset.id;
+  el.querySelectorAll('button').forEach(b=>b.onclick=async()=>{const a=b.dataset.a;
+   if(a==='place'){await api('/api/dash/star',{kind:'day'}).catch(()=>{});await api('/api/dash/notes/'+id,{status:'answered'})}
+   else if(a==='no'||a==='tuck')await api('/api/dash/notes/'+id,{status:'tucked'});
+   else if(a==='later')await api('/api/dash/notes/'+id,{status:'later'});
+   else await api('/api/dash/notes/'+id,{status:'answered',reply:el.querySelector('.reply').value});
+   render()})});
+}
+render();
+// ---- Sleep & Body (Oura, read-only). Numbers are information, never a verdict. ----
+const OPTS=[['hours','sleep hours'],['readiness','readiness'],['hrv','HRV'],['rhr','resting HR'],['steps','steps'],['chart','7-night chart']];
+const ouraPref=()=>{try{return JSON.parse(localStorage.ouraShow)}catch(e){return {hours:1,chart:1}}};
+let ouraData=null;
+function drawOura(){
+ const d=ouraData;if(!d)return;const p=ouraPref();
+ $('ouranote').textContent=d.note+(d.stale?' (showing the last thing I heard)':'');
+ const n=d.night,t=d.today;let chips=[];
+ const chip=(l,v)=>`<span style="display:inline-block;margin:0 8px 6px 0;padding:4px 12px;border-radius:14px;background:rgba(255,255,255,.1);font-size:14px">${l} <b style="font-weight:normal;color:#aef0ec">${v}</b></span>`;
+ if(n){if(p.hours&&n.sleep_hours)chips.push(chip('slept',n.sleep_hours+'h'));
+  if(p.readiness&&n.readiness!=null)chips.push(chip('readiness',n.readiness));
+  if(p.hrv&&n.hrv)chips.push(chip('HRV',Math.round(n.hrv)+' ms'));
+  if(p.rhr&&n.resting_hr)chips.push(chip('resting HR',n.resting_hr))}
+ if(!n){const r=[...(d.last7||[])].reverse().find(x=>x.sleep_hours);
+  if(r){const wd=new Date(r.day+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'});
+   if(p.hours)chips.push(chip('most recent night ('+wd+')',r.sleep_hours+'h'));
+   if(p.readiness&&r.readiness!=null)chips.push(chip('readiness ('+wd+')',r.readiness));
+   if(p.hrv&&r.hrv)chips.push(chip('HRV ('+wd+')',Math.round(r.hrv)+' ms'));
+   if(p.rhr&&r.resting_hr)chips.push(chip('resting HR ('+wd+')',r.resting_hr))}}
+ if(p.steps&&t&&t.steps!=null)chips.push(chip('steps so far',t.steps.toLocaleString()));
+ $('ourachips').innerHTML=chips.join('');
+ const l7=d.last7||[];
+ if(p.chart&&l7.some(x=>x.sleep_hours)){const max=Math.max(...l7.map(x=>x.sleep_hours||0),8);
+  $('ouraspark').innerHTML='<div style="display:flex;gap:8px;align-items:flex-end;height:64px;margin-top:6px">'+l7.map(x=>{
+   const lab=new Date(x.day+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'});
+   return `<div style="flex:1;text-align:center;font-size:11px;opacity:.85" title="${x.sleep_hours?x.sleep_hours+'h':'no data'}">`+
+   (x.sleep_hours?`<div style="height:${Math.round(x.sleep_hours/max*48)}px;border-radius:6px;background:linear-gradient(#f9a8d4,#7de0dc);opacity:.85"></div>`:`<div style="height:48px;display:flex;align-items:flex-end;justify-content:center"><span style="font-size:16px;color:rgba(255,255,255,.2)">☾</span></div>`)+lab+'</div>'}).join('')+'</div>'}
+ else $('ouraspark').innerHTML='';
+ $('ouraopts').innerHTML='show: '+OPTS.map(([k,l])=>`<label style="margin-right:10px;white-space:nowrap"><input type="checkbox" data-o="${k}" ${p[k]?'checked':''} style="width:auto"> ${l}</label>`).join('');
+ $('ouraopts').querySelectorAll('input').forEach(c=>c.onchange=()=>{const q=ouraPref();q[c.dataset.o]=c.checked?1:0;localStorage.ouraShow=JSON.stringify(q);drawOura()});
+}
+async function loadOura(){try{ouraData=await api('/api/oura');if(ouraData.enabled===false)return;$('ouracard').hidden=false;drawOura()}catch(e){$('ouranote').textContent="Oura isn't answering right now."}}
+loadOura();setInterval(loadOura,10*60*1000);
+// ---- Weather (Open-Meteo via the server; no account, city-level) ----
+const WXI={clear:'☀️',cloudy:'⛅',fog:'🌫️',rain:'🌧️',snow:'❄️',storm:'⛈️'};
+async function loadWx(){
+ try{const d=await api('/api/weather');if(d.enabled===false)return;$('wxcard').hidden=false;
+  $('wxnote').textContent=d.note+(d.stale&&d.days.length?' (last forecast I heard)':'');
+  $('wxplace').textContent=d.place?'· '+d.place:'';
+  $('wxdays').innerHTML=(d.days||[]).map((x,i)=>{
+   const lab=i===0?'Today':new Date(x.day+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'});
+   return `<div style="flex:1;text-align:center;font-size:12px;padding:6px 2px;border-radius:12px;${i===0?'background:rgba(255,255,255,.1)':''}">${lab}<div style="font-size:22px;margin:4px 0">${WXI[x.kind]||''}</div><div style="font-size:14px">${x.hi}°</div><div style="opacity:.6">${x.lo}°</div>${x.rain>=30?`<div style="color:#aee0ff;font-size:11px;margin-top:2px">${x.rain}%</div>`:''}</div>`}).join('')}
+ catch(e){$('wxnote').textContent="The forecast isn't answering right now."}}
+loadWx();setInterval(loadWx,30*60*1000);
+// ---- Parking Lot count (just information; parked things are safe, not overdue) ----
+async function loadPL(){
+ try{const d=await api('/api/items');const p=d.items.filter(i=>i.status==='parked');
+  $('plcount').textContent=p.length;
+  $('pltext').textContent=p.length===0?'Nothing waiting. The lot is clear.':p.length===1?'thing parked, safe and waiting':'things parked, safe and waiting';
+  const last=p.slice(-1)[0];$('plnew').textContent=last?'Newest: '+(last.text.length>46?last.text.slice(0,46)+'…':last.text):''}
+ catch(e){$('pltext').textContent="Couldn't reach the lot right now."}}
+loadPL();setInterval(loadPL,5*60*1000);
+// ---- One gentle thing: one small suggestion. Skipping is allowed; nothing is graded. ----
+async function gt(action,text){const r=await api('/api/dash/gentle',{action,text});drawGT(r)}
+function drawGT(s){
+ if(!s||!s.item){$('gttext').textContent='Your list is empty. Add one below, or rest.';$('gtbtns').innerHTML='';return}
+ const it=s.item;let b='';
+ if(it.status==='done'){$('gttext').innerHTML='<span class="star" style="font-size:22px">★</span> '+esc(it.text)+'<br><small style="opacity:.7">Done. That counts.</small>';
+  b=(s.can_star?'<button id="gtstar">✦ place a star for it</button>':'')+'<button id="gtundo">undo</button>'}
+ else if(it.status==='skipped'){$('gttext').innerHTML='<span style="opacity:.8">Not today. Resting counts too.</span>';b='<button id="gtback">show it again</button><button id="gtanother">another one</button>'}
+ else{$('gttext').textContent=it.text;b='<button id="gtdone">did it</button><button id="gtanother">another one</button><button id="gtskip">not today</button>'}
+ $('gtbtns').innerHTML=b;
+ const on=(id,fn)=>{const e=$(id);if(e)e.onclick=fn};
+ on('gtdone',()=>gt('done'));on('gtskip',()=>gt('skip'));on('gtanother',()=>gt('another'));on('gtundo',()=>gt('undo'));on('gtback',()=>gt('undo'));
+ on('gtstar',async()=>{await api('/api/dash/star',{kind:'extra',label:it.text.slice(0,80)});const r=await api('/api/dash/gentle');drawGT(r);render()});
+ $('gtlist').innerHTML=(s.list||[]).map(x=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.1)"><span>${esc(x)}</span><button data-r="${esc(x)}" style="margin:0;padding:0 8px" title="remove from my list">×</button></div>`).join('');
+ $('gtlist').querySelectorAll('button').forEach(e=>e.onclick=()=>gt('remove',e.dataset.r));
+}
+$('gtadd').onkeydown=e=>{if(e.key==='Enter'&&e.target.value.trim()){gt('add',e.target.value.trim());e.target.value=''}};
+api('/api/dash/gentle').then(drawGT).catch(()=>{$('gttext').textContent="Couldn't load this one right now."});
+</script></body></html>

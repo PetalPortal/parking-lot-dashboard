@@ -1,0 +1,14 @@
+{
+  "data_dir": "data",
+  "port": 8765,
+  "owner_name": "",
+  "helper_name": "",
+  "weather": {
+    "enabled": false,
+    "latitude": null,
+    "longitude": null,
+    "place": "",
+    "timezone": "America/Chicago"
+  },
+  "oura_adapter": ""
+}
